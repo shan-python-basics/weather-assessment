@@ -1,0 +1,22 @@
+logging:
+  pattern:
+    console: "%d [%t]: [xMessageId:%X{x-messageId}] %p %c %M:%L - %m %n"
+  level:
+    org.springframework.web: ERROR
+    org.springframework.boot: ERROR
+    org.springframework.beans: ERROR
+    com.deloitte: TRACE
+    org.apache.http: DEBUG
+    httpclient.wire: DEBUG
+
+api:
+  basepath: /com/deloitte/globalWeather
+
+globalWeatherSoap:
+  timeout:
+    connectionTimeout: 10000
+    socketTimeout: 10000
+  endpoint: http://localhost:8080/GlobalWeather
+
+server:
+  port: 8066

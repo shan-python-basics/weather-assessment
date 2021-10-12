@@ -1,0 +1,247 @@
+---
+swagger: '2.0'
+
+#########################################################################
+#                          API Information                              #
+#########################################################################
+info:
+  version: 1.0.0
+  title: Global Weather
+  description: Global Weather
+
+#########################################################################
+#            Host, Base Path, Schemas and Content Types                 #
+#########################################################################
+host: localhost:8080
+basePath: /com/deloitte/globalWeather
+schemes:
+  - http
+produces:
+  - application/json
+consumes:
+  - application/json
+
+#########################################################################
+#                               Parameters                              #
+#########################################################################
+parameters:
+  x-messageId:
+    name: x-messageId
+    in: header
+    description: Globally unique message identifier  - GUID
+    type: string
+    required: true
+  cityName:
+    name: cityName
+    in: path
+    description: City name for weather retrieval
+    type: string
+    required: true
+  countryName:
+    name: countryName
+    in: path
+    description: Country name for weather or cities retrieval
+    type: string
+    required: true
+
+#########################################################################
+#                                 Path                                  #
+#########################################################################
+paths:
+  /retrieveWeather/city/{cityName}/country/{countryName}:
+    get:
+      tags:
+        - City Weather
+      description: This resource is used to retrieve weathter information for given city and country.
+      operationId: retrieveWeather
+      parameters:
+        - $ref: '#/parameters/x-messageId'
+        - $ref: '#/parameters/cityName'
+        - $ref: '#/parameters/countryName'
+      responses:
+        #Success
+        200:
+          $ref: '#/responses/200WeatherGetResponse'
+        400:
+          $ref: '#/responses/400ErrorResponse'
+        404:
+          $ref: '#/responses/404WeatherGetErrorResponse'
+        500:
+          $ref: '#/responses/500ErrorResponse'
+
+  /retrieveCities/{countryName}:
+    get:
+      tags:
+        - City Information
+      description: This resource is used to retrieve all cities for given country.
+      operationId: retrieveCities
+      parameters:
+        - $ref: '#/parameters/x-messageId'
+        - $ref: '#/parameters/countryName'
+      responses:
+        #Success
+        200:
+          $ref: '#/responses/200CitiesGetResponse'
+        400:
+          $ref: '#/responses/400ErrorResponse'
+        404:
+          $ref: '#/responses/404CitiesGetErrorResponse'
+        500:
+          $ref: '#/responses/500ErrorResponse'
+
+
+#########################################################################
+#                               Response                                #
+#########################################################################
+responses:
+  200WeatherGetResponse:
+    description: Weather retrieval successful response.
+    schema:
+      $ref: '#/definitions/weatherGetResponse'
+  200CitiesGetResponse:
+    description: Cities retrieval successful response.
+    schema:
+      $ref: '#/definitions/citiesGetResponse'
+  400ErrorResponse:
+    description: |
+      __Bad Response__
+
+      Possible errors
+      | Error Code | Error Message | Error Description |
+      | ---------- | ------------- | ----------------- |
+      | 1001       | Missing {field Name} | {field Name} must not be null |
+      | 1002       | Invalid request      | Unrecogized field {field name} |
+    schema:
+      $ref: '#/definitions/ErrorResponse'
+  404WeatherGetErrorResponse:
+    description: |
+      __Bad Response__
+
+      Possible errors
+      | Error Code | Error Message | Error Description |
+      | ---------- | ------------- | ----------------- |
+      | 2001       | CityName/CountryName not found | CityName/CountryName not found |
+    schema:
+      $ref: '#/definitions/ErrorResponse'
+  404CitiesGetErrorResponse:
+    description: |
+      __Bad Response__
+
+      Possible errors
+      | Error Code | Error Message | Error Description |
+      | ---------- | ------------- | ----------------- |
+      | 2001       | CountryName not found | CountryName not found |
+    schema:
+      $ref: '#/definitions/ErrorResponse'
+
+  500ErrorResponse:
+    description: |
+      __Internal Server Response__
+
+      Possible errors
+      | Error Code | Error Message | Error Description |
+      | ---------- | ------------- | ----------------- |
+      | 10001       | Host Unavailable | The downstream system failed to accept the request |
+      | 10002       | Provider Timeout | The downstream system failed to respond within the expected time periods |
+      | 10003       | Technical Error  | < provider error > |
+    schema:
+      $ref: '#/definitions/ErrorResponse'
+
+#########################################################################
+#                             Definitions                               #
+#########################################################################
+definitions:
+  weatherGetResponse:
+    description: Weather information retrieval successful response.
+    type: object
+    properties:
+      data:
+        $ref: '#/definitions/weatherGetResponseData'
+  citiesGetResponse:
+    description: Cities retrieval successful response.
+    type: object
+    properties:
+      data:
+        $ref: '#/definitions/citiesGetResponseData'
+
+  weatherGetResponseData:
+    description: Weather information retrieval successful response data details.
+    type: object
+    properties:
+      location:
+        description: location of the city
+        type: string
+      time:
+        description: current time for the lcoation
+        type: string
+      wind:
+        description: current wind status for the location
+        type: string
+      visibility:
+        description: current visibility status for the location
+        type: string
+      skyCondition:
+        description: current sky condition status for the location
+        type: string
+      temperature:
+        description: current temperature for the location
+        type: string
+      dewPoint:
+        description: current dew point status for the location
+        type: string
+      relativeHumidity:
+        description: current relative humidity status for the location
+        type: string
+      status:
+        description: current weather status for the location
+        type: string
+
+  citiesGetResponseData:
+    description: Cities retrieval successful response data details.
+    type: object
+    properties:
+      cities:
+        type: array
+        items:
+          $ref: '#/definitions/cityInformation'
+
+  cityInformation:
+    description: City information.
+    type: object
+    properties:
+      country:
+        type: string
+      city:
+        type: string
+
+  ErrorResponse:
+    description: Error response
+    type: object
+    properties:
+      result:
+        $ref: '#/definitions/ErrorResult'
+  ErrorResult:
+    description: Array of errors
+    type: object
+    properties:
+      errors:
+        type: array
+        items:
+          $ref: '#/definitions/Error'
+  Error:
+    description: Represent an individual error.
+    type: object
+    required:
+      - code
+      - message
+    properties:
+      code:
+        description: Error code.
+        type: integer
+        format: int32
+      message:
+        description: Error message
+        type: string
+      details:
+        description: Detailed information about the error.
+        type: string

@@ -1,0 +1,11 @@
+
+api:
+  basepath: /com/deloitte/globalWeather
+
+globalWeatherSoap:
+  timeout:
+    connectionTimeout: 10000
+    socketTimeout: 10000
+  endpoint: http://www.webserviceX.NET/GlobalWeather
+server:
+  port: 8066
